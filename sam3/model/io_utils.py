@@ -303,11 +303,11 @@ def load_video_frames_from_video_file_using_cv2(
         pbar.update(1)
     cap.release()
     pbar.close()
-    buf = buf[:i]
 
     print("I am done reading the frames")
 
     video_tensor = torch.from_numpy(buf).permute(0, 3, 1, 2).contiguous()  # (T,C,H,W) uint8 CPU
+    print("Video tensor shape after loading: ", video_tensor.shape)
 
     # Convert to tensor
     # frames_np = np.stack(frames, axis=0).astype(np.float32)  # (T, H, W, C)
