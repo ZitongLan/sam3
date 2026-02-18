@@ -283,9 +283,11 @@ def load_video_frames_from_video_file_using_cv2(
     num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     num_frames = num_frames if num_frames > 0 else None
 
-    frames = []
+    # frames = []
     pbar = tqdm(desc=f"frame loading (OpenCV) [rank={RANK}]", total=num_frames)
     while True:
+        buf = np.empty((num_frames, image_size, image_size, 3), dtype=np.uint8)
+        i=0
         ret, frame = cap.read()
         if not ret:
             break
@@ -295,16 +297,21 @@ def load_video_frames_from_video_file_using_cv2(
         frame_resized = cv2.resize(
             frame_rgb, (image_size, image_size), interpolation=cv2.INTER_CUBIC
         )
-        frames.append(frame_resized)
+        buf[i] = frame_resized
+        i += 1
+        # frames.append(frame_resized)
         pbar.update(1)
     cap.release()
     pbar.close()
+    buf = buf[:i]
 
     print("I am done reading the frames")
 
+    video_tensor = torch.from_numpy(buf).permute(0, 3, 1, 2).contiguous()  # (T,C,H,W) uint8 CPU
+
     # Convert to tensor
-    frames_np = np.stack(frames, axis=0).astype(np.float32)  # (T, H, W, C)
-    video_tensor = torch.from_numpy(frames_np).permute(0, 3, 1, 2)  # (T, C, H, W)
+    # frames_np = np.stack(frames, axis=0).astype(np.float32)  # (T, H, W, C)
+    # video_tensor = torch.from_numpy(frames_np).permute(0, 3, 1, 2)  # (T, C, H, W)
 
     print("I am done converting frames to tensor")
 
