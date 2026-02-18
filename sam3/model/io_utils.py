@@ -286,7 +286,7 @@ def load_video_frames_from_video_file_using_cv2(
     # frames = []
     pbar = tqdm(desc=f"frame loading (OpenCV) [rank={RANK}]", total=num_frames)
     while True:
-        buf = np.empty((num_frames, image_size, image_size, 3), dtype=np.uint8)
+        buf = np.empty((num_frames, image_size, image_size, 3), dtype=np.float32)
         i=0
         ret, frame = cap.read()
         if not ret:
